@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,27 +48,43 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
         if(note!=null) holder.txtnote.setText(note);
         else holder.txtnote.setText("");
         setuptxtDay(alarm,holder);
-        holder.btnCheck.setBackgroundResource(alarm.isOn()? R.drawable.switch_on : R.drawable.switch_off);
-        holder.btnCheck.setOnClickListener(new View.OnClickListener() {
+        final int[] first = {0};
+        holder.switch_on_off.setChecked(alarm.isOn());
+        holder.switch_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                if(alarm.isOn()){
-                    alarm.setOn(false);
-                    customAlarmManager.cancelAlarm(itemView,in,alarm.getId());
-                    holder.btnCheck.setBackgroundResource(R.drawable.switch_off);
-                }
-                else {
-                    alarm.setOn(true);
-                    Toast.makeText(itemView,alarm.getId()+":"+alarm.isOn(),Toast.LENGTH_SHORT).show();
-                    customAlarmManager.addAlarm(itemView,in,alarm);
-                    holder.btnCheck.setBackgroundResource(R.drawable.switch_on);
-                }
-                db.update(alarm);
-                setuptxtDay(alarm,holder);
-
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    alarm.setOn(isChecked);
+                    db.update(alarm);
+                if(first[0] ==1)
+                    if(isChecked)
+                        customAlarmManager.addAlarm(itemView,in,alarm);
+                    else
+                        customAlarmManager.cancelAlarm(itemView,in,alarm.getId());
+                 first[0] =1;
 
             }
         });
+//        holder.btnCheck.setBackgroundResource(alarm.isOn()? R.drawable.switch_on : R.drawable.switch_off);
+//        holder.btnCheck.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(alarm.isOn()){
+//                    alarm.setOn(false);
+//                    customAlarmManager.cancelAlarm(itemView,in,alarm.getId());
+//                    holder.btnCheck.setBackgroundResource(R.drawable.switch_off);
+//                }
+//                else {
+//                    alarm.setOn(true);
+//                    Toast.makeText(itemView,alarm.getId()+":"+alarm.isOn(),Toast.LENGTH_SHORT).show();
+//                    customAlarmManager.addAlarm(itemView,in,alarm);
+//                    holder.btnCheck.setBackgroundResource(R.drawable.switch_on);
+//                }
+//                db.update(alarm);
+//                setuptxtDay(alarm,holder);
+//
+//
+//            }
+//        });
         holder.btnDel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

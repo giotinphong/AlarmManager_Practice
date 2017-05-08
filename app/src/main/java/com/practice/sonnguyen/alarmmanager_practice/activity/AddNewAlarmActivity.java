@@ -2,7 +2,7 @@ package com.practice.sonnguyen.alarmmanager_practice.activity;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.NotificationManager;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Ringtone;
@@ -10,6 +10,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -21,8 +22,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -30,21 +31,19 @@ import android.widget.Toast;
 import com.practice.sonnguyen.alarmmanager_practice.Alarm;
 import com.practice.sonnguyen.alarmmanager_practice.AlarmBroadcastService;
 import com.practice.sonnguyen.alarmmanager_practice.CustomAlarmManager;
-import com.practice.sonnguyen.alarmmanager_practice.ItemAdapter;
 import com.practice.sonnguyen.alarmmanager_practice.R;
 import com.practice.sonnguyen.alarmmanager_practice.sqlData;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class AddNewAlarmActivity extends AppCompatActivity {
-    private  int hour,minute;
-    private ItemAdapter itemAdapter;
-    private ArrayList<Alarm> alarmArrayList;
+    private  int hourSet=0,minuteSet=0;
     private sqlData db;
     private CustomAlarmManager customAlarmManager;
-    private TimePicker timePicker;
+    private TextView textClock_SetTime;
     private Alarm alarm;
     private SeekBar SeekSoundLevel;
     private TextView txtDay;
@@ -58,7 +57,39 @@ public class AddNewAlarmActivity extends AppCompatActivity {
         db = new sqlData(getApplicationContext());
         alarm = new Alarm();
         final EditText edNote = (EditText)findViewById(R.id.acti_addnewalarm_edittext_note);
-        timePicker = (TimePicker)findViewById(R.id.acti_addnewalarm_timepicker);
+        Date date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
+
+        textClock_SetTime = (TextView) findViewById(R.id.acti_addnewalarm_textclock_settime);
+        textClock_SetTime.setText(date.getHours()+":"+date.getMinutes());
+        textClock_SetTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar mcurrentTime = Calendar.getInstance();
+                final int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
+                final int minute = mcurrentTime.get(Calendar.MINUTE);
+                TimePickerDialog mTimePicker;
+                mTimePicker = new TimePickerDialog(AddNewAlarmActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                        //set time to this
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                           hourSet = timePicker.getHour();
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            minuteSet = timePicker.getMinute();
+                        }
+                        else{
+                            hourSet = timePicker.getCurrentHour();
+                            minuteSet = timePicker.getCurrentMinute();
+
+                        }
+                        textClock_SetTime.setText(hourSet+":"+minuteSet);
+                    }
+                }, hour, minute, true);//Yes 24 hour time
+                mTimePicker.setTitle("Select Time");
+                mTimePicker.show();
+            }
+        });
         txtDay = (TextView)findViewById(R.id.acti_addnewalarm_txt_day);
         SeekSoundLevel = (SeekBar) findViewById(R.id.acti_addnewalarm_seekbar_soundLevel);
         SeekSoundLevel.setMax(20);
@@ -205,26 +236,20 @@ public class AddNewAlarmActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    hour = timePicker.getHour();
+                if(hourSet==0&&minuteSet==0){
+                    Snackbar.make(findViewById(android.R.id.content),"Bạn chưa chọn giờ",Snackbar.LENGTH_SHORT).show();
+                    return;
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    minute = timePicker.getMinute();
-                }
-                else{
-                    hour = timePicker.getCurrentHour();
-                    minute = timePicker.getCurrentMinute();
 
-                }
                 Intent in = new Intent(getApplicationContext(),AlarmBroadcastService.class);
 
-                Date date = new Date();
+                Date date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
                 //neu gio hien tai > gio set
-                if(Calendar.getInstance().getTime().getHours()>hour){
+                if(Calendar.getInstance().getTime().getHours()>hourSet){
                     date.setDate(date.getDay()+1);
                 }
-                date.setHours(hour);
-                date.setMinutes(minute);
+                date.setHours(hourSet);
+                date.setMinutes(minuteSet);
                 date.setSeconds(0);
                 alarm.setTime(date.getTime());
                 alarm.setNote(edNote.getText().toString());
@@ -234,8 +259,8 @@ public class AddNewAlarmActivity extends AppCompatActivity {
                 customAlarmManager.addAlarm(getApplicationContext(),in,alarm);
                 //neu nhu phut cua hien tai > phut set, gio hien tai < gio set
                 int Chour = Calendar.getInstance().getTime().getHours(),Cminute = Calendar.getInstance().getTime().getMinutes();
-                if(Cminute>minute && Chour == hour - 1){
-                    Toast.makeText(getApplicationContext(),"Chuông báo được khởi động sau "+(minute+60 - Calendar.getInstance().getTime().getMinutes())
+                if(Cminute>minuteSet && Chour == hourSet - 1){
+                    Toast.makeText(getApplicationContext(),"Chuông báo được khởi động sau "+(minuteSet+60 - Calendar.getInstance().getTime().getMinutes())
                             +" phút nữa.",Toast.LENGTH_SHORT).show();
 
                 }

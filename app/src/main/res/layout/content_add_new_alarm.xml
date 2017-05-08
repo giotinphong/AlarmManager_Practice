@@ -11,95 +11,138 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <TimePicker
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:scaleY="1.5"
-            android:scaleX="1.5"
-            android:elevation="7dp"
-            android:id="@+id/acti_addnewalarm_timepicker"
-            android:timePickerMode="spinner"></TimePicker>
+
+        <!--<TimePicker-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:scaleY="1.5"-->
+            <!--android:scaleX="1.5"-->
+            <!--android:elevation="7dp"-->
+            <!--android:id="@+id/acti_addnewalarm_timepicker"-->
+            <!--android:timePickerMode="spinner"></TimePicker>-->
     </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:id="@+id/acti_addnewalarm_cardview_repeat"
                 android:layout_marginTop="5dp"
-                android:layout_height="wrap_content">
+                android:layout_height="@dimen/cardview_item_height"
+                android:layout_marginBottom="@dimen/cardview_default_margin"
+                >
                 <LinearLayout
+                    android:layout_gravity="center"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <TextView
+                    android:orientation="horizontal">
+                    <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="30dp"
+                        app:srcCompat="@drawable/ic_repeat"
+                        />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:textSize="@dimen/larger_text_size"
+                        android:textColor="@color/cardview_shadow_start_color"
                         android:text="Lặp lại"/>
                     <TextView
                         android:id="@+id/acti_addnewalarm_txt_day"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_weight="3"
                         android:layout_height="wrap_content"
-                        android:text="Chua bao gio"/>
+                        android:textStyle="bold"
+                        android:text="Không lặp lại"/>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
+        android:layout_height="@dimen/cardview_item_height"
+        android:layout_marginBottom="@dimen/cardview_default_margin"
         android:layout_width="match_parent"
         android:id="@+id/acti_addnewalarm_cardview_ringtone"
-        android:layout_height="wrap_content">
+       >
         <LinearLayout
+            android:layout_gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_sound"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="30dp"
+                android:textSize="@dimen/larger_text_size"
+                android:textColor="@color/cardview_shadow_start_color"
+                android:layout_weight="1"
+
                 android:text="Chuông báo"/>
+
             <TextView
                 android:id="@+id/acti_addnewalarm_txt_name_alarm"
                 android:layout_width="wrap_content"
+                android:textStyle="bold"
                 android:layout_height="wrap_content"
-                android:text="Alarm 1"/>
+                android:layout_weight="1"
+                android:text="Alarm 1" />
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="@dimen/cardview_item_height"
+        android:layout_marginBottom="@dimen/cardview_default_margin">
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_gravity="center"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
             <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 app:srcCompat="@drawable/ic_volume" />
-
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/larger_text_size"
+                android:textColor="@color/cardview_shadow_start_color"
+                android:text="Âm lượng"/>
             <SeekBar
                 android:id="@+id/acti_addnewalarm_seekbar_soundLevel"
                 android:layout_width="match_parent"
-                android:layout_height="50dp" />
+
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
             android:id="@+id/acti_addnewalarm_cardview_vibrate"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        android:layout_height="@dimen/cardview_item_height"
+        android:layout_marginBottom="@dimen/cardview_default_margin">
             <LinearLayout
+                android:layout_gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_vibrate"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="30dp"
+                    android:textSize="@dimen/larger_text_size"
+                    android:textColor="@color/cardview_shadow_start_color"
+                    android:layout_weight="1"
                     android:text="Chế độ rung"/>
                 <TextView
+                    android:layout_weight="1"
+                    android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Rung"/>
@@ -107,15 +150,22 @@
         </android.support.v7.widget.CardView>
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="@dimen/cardview_item_height"
+            android:layout_marginBottom="@dimen/cardview_default_margin">
         <LinearLayout
+            android:layout_gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_remind"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="30dp"
+                android:textColor="@color/cardview_shadow_start_color"
+                android:textSize="@dimen/larger_text_size"
                 android:text="Nhắc nhở"/>
             <EditText
                 android:layout_width="match_parent"
