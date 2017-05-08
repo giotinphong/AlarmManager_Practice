@@ -141,6 +141,7 @@
                     android:layout_weight="1"
                     android:text="Chế độ rung"/>
                 <TextView
+                    android:id="@+id/acti_addnewalarm_txt_vibrate_display"
                     android:layout_weight="1"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"

@@ -43,53 +43,26 @@ public class AddNewAlarmActivity extends AppCompatActivity {
     private  int hourSet=0,minuteSet=0;
     private sqlData db;
     private CustomAlarmManager customAlarmManager;
-    private TextView textClock_SetTime;
     private Alarm alarm;
     private SeekBar SeekSoundLevel;
-    private TextView txtDay;
+    private TextView txtDay,txtVibrate;
+    private TimePicker timePicker;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_alarm);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
+
         customAlarmManager = new CustomAlarmManager();
         db = new sqlData(getApplicationContext());
         alarm = new Alarm();
         final EditText edNote = (EditText)findViewById(R.id.acti_addnewalarm_edittext_note);
         Date date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
+        txtVibrate = (TextView)findViewById(R.id.acti_addnewalarm_txt_vibrate_display);
 
-        textClock_SetTime = (TextView) findViewById(R.id.acti_addnewalarm_textclock_settime);
-        textClock_SetTime.setText(date.getHours()+":"+date.getMinutes());
-        textClock_SetTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar mcurrentTime = Calendar.getInstance();
-                final int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                final int minute = mcurrentTime.get(Calendar.MINUTE);
-                TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(AddNewAlarmActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        //set time to this
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                           hourSet = timePicker.getHour();
-                        }
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            minuteSet = timePicker.getMinute();
-                        }
-                        else{
-                            hourSet = timePicker.getCurrentHour();
-                            minuteSet = timePicker.getCurrentMinute();
-
-                        }
-                        textClock_SetTime.setText(hourSet+":"+minuteSet);
-                    }
-                }, hour, minute, true);//Yes 24 hour time
-                mTimePicker.setTitle("Select Time");
-                mTimePicker.show();
-            }
-        });
+        timePicker = (TimePicker)findViewById(R.id.acti_addnewalarm_picker_time);
         txtDay = (TextView)findViewById(R.id.acti_addnewalarm_txt_day);
         SeekSoundLevel = (SeekBar) findViewById(R.id.acti_addnewalarm_seekbar_soundLevel);
         SeekSoundLevel.setMax(20);
@@ -215,12 +188,14 @@ public class AddNewAlarmActivity extends AppCompatActivity {
                             case DialogInterface.BUTTON_POSITIVE:
                                 //Yes button clicked
                                 alarm.setVibrate(true);
+                                txtVibrate.setText("Rung");
                                 db.update(alarm);
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
                                 //No button clicked
                                 alarm.setVibrate(false);
+                                txtVibrate.setText("Không rung");
                                 db.update(alarm);
                                 break;
                         }
@@ -236,6 +211,17 @@ public class AddNewAlarmActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                           hourSet = timePicker.getHour();
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            minuteSet = timePicker.getMinute();
+                        }
+                        else{
+                            hourSet = timePicker.getCurrentHour();
+                            minuteSet = timePicker.getCurrentMinute();
+
+                        }
                 if(hourSet==0&&minuteSet==0){
                     Snackbar.make(findViewById(android.R.id.content),"Bạn chưa chọn giờ",Snackbar.LENGTH_SHORT).show();
                     return;
