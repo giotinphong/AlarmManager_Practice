@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Unlimit Alarm</string>
+    <string name="title_activity_add_new_alarm">AddNewAlarmActivity</string>
+    <string name="title_activity_alarm_display">AlarmDisplayActivity</string>
+</resources>
