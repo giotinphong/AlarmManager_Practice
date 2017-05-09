@@ -7,8 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
-import android.widget.TextView;
-import android.widget.Toast;
+
+import com.practice.sonnguyen.alarmmanager_practice.activity.AddNewAlarmActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -32,7 +32,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     @Override
     public AlarmViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_alarm, parent, false);
-        itemView = v.getContext();
+        itemView = parent.getContext();
         customAlarmManager = new CustomAlarmManager();
         in = new Intent(parent.getContext(),AlarmBroadcastService.class);
         db = new sqlData(parent.getContext().getApplicationContext());
@@ -64,40 +64,19 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
 
             }
         });
-//        holder.btnCheck.setBackgroundResource(alarm.isOn()? R.drawable.switch_on : R.drawable.switch_off);
-//        holder.btnCheck.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(alarm.isOn()){
-//                    alarm.setOn(false);
-//                    customAlarmManager.cancelAlarm(itemView,in,alarm.getId());
-//                    holder.btnCheck.setBackgroundResource(R.drawable.switch_off);
-//                }
-//                else {
-//                    alarm.setOn(true);
-//                    Toast.makeText(itemView,alarm.getId()+":"+alarm.isOn(),Toast.LENGTH_SHORT).show();
-//                    customAlarmManager.addAlarm(itemView,in,alarm);
-//                    holder.btnCheck.setBackgroundResource(R.drawable.switch_on);
-//                }
-//                db.update(alarm);
-//                setuptxtDay(alarm,holder);
-//
-//
-//            }
-//        });
-        holder.btnDel.setOnClickListener(new View.OnClickListener() {
+        holder.card_detail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(alarm.isOn()){
-                    customAlarmManager.cancelAlarm(itemView,in,alarm.getId());
-                }
-                db.delete(alarm);
-                alarmArrayList.remove(alarm);
-                notifyItemRemoved(position);
-                notifyItemRangeChanged(position, alarmArrayList.size());
-
+                Intent in = new Intent(holder.itemView.getContext(),AddNewAlarmActivity.class);
+                in.putExtra("id",alarm.getId());
+                in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                itemView.startActivity(in);
             }
         });
+
+
+        //set swipe to delete
+
     }
 
     @Override
@@ -142,4 +121,5 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
             else holder.txtDay.setText("");
         }
     }
+
 }

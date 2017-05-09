@@ -2,7 +2,6 @@ package com.practice.sonnguyen.alarmmanager_practice.activity;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Ringtone;
@@ -10,20 +9,19 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.SeekBar;
-import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -40,33 +38,85 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class AddNewAlarmActivity extends AppCompatActivity {
-    private  int hourSet=0,minuteSet=0;
+    private  int hourSet=0,minuteSet=0,id=-1;
     private sqlData db;
     private CustomAlarmManager customAlarmManager;
     private Alarm alarm;
     private SeekBar SeekSoundLevel;
-    private TextView txtDay,txtVibrate;
+    private TextView txtRepeat,txtVibrate;
     private TimePicker timePicker;
+    private ArrayList<Integer>listDay;
+    private TextView txtRingtone;
+    private EditText edRemind;
+    private FloatingActionButton fabEdit;
+
+    private CheckBox t2,t3,t4,t5,t6,t7,cn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_alarm);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
+
         setSupportActionBar(toolbar);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        db = new sqlData(this);
         customAlarmManager = new CustomAlarmManager();
-        db = new sqlData(getApplicationContext());
-        alarm = new Alarm();
-        final EditText edNote = (EditText)findViewById(R.id.acti_addnewalarm_edittext_note);
-        Date date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
+        txtRepeat = (TextView)findViewById(R.id.acti_addnewalarm_txt_repeat);
         txtVibrate = (TextView)findViewById(R.id.acti_addnewalarm_txt_vibrate_display);
-
+        SeekSoundLevel = (SeekBar) findViewById(R.id.acti_addnewalarm_seekbar_soundLevel);
+        txtRingtone = (TextView)findViewById(R.id.acti_addnewalarm_txt_ringtone);
+        edRemind = (EditText)findViewById(R.id.acti_addnewalarm_edittext_remind);
+        fabEdit = (FloatingActionButton)findViewById(R.id.acti_addnewalarm_fab_add);
         timePicker = (TimePicker)findViewById(R.id.acti_addnewalarm_picker_time);
-        txtDay = (TextView)findViewById(R.id.acti_addnewalarm_txt_day);
         SeekSoundLevel = (SeekBar) findViewById(R.id.acti_addnewalarm_seekbar_soundLevel);
         SeekSoundLevel.setMax(20);
-        SeekSoundLevel.setProgress(16);
+
+        //is edit = true -> edit : false => show detail
+        try {
+            id = getIntent().getExtras().getInt("id");
+        }catch (Exception e){}
+        if(id!=-1){
+
+            customAlarmManager = new CustomAlarmManager();
+            alarm = db.getAlarm(id);
+            Date date = new Date(alarm.getTime());
+            int hour = date.getHours(),minute = date.getMinutes();
+            timePicker.setCurrentHour(hour);
+            timePicker.setCurrentMinute(minute);
+            //set
+            listDay = alarm.getListDays();
+            if(listDay.size()==0){
+                txtRepeat.setText("Không lặp lại");
+            }
+            else {
+                String s = "";
+                for(int i : listDay){
+                    if(i!=1)
+                    s+="T."+i+" ";
+                    else
+                        s+="CN ";
+                }
+                txtRepeat.setText(s);
+            }
+            txtVibrate.setText(alarm.isVibrate() ? "Rung" : "Không rung");
+            SeekSoundLevel.setProgress(alarm.getSoundLevel());
+            Ringtone ringtone = RingtoneManager.getRingtone(this, alarm.getRingtone());
+            txtRingtone.setText(ringtone.getTitle(this));
+            edRemind.setText(alarm.getNote());
+            //fabEdit.setBackgroundResource(R.drawable.ic_edit);
+            fabEdit.setImageResource(R.drawable.ic_edit);
+        }
+
+        else {
+            listDay = new ArrayList<>();
+            alarm = new Alarm();
+            SeekSoundLevel.setProgress(16);
+        }
+
+
+
         SeekSoundLevel.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -91,8 +141,6 @@ public class AddNewAlarmActivity extends AppCompatActivity {
                 //TODO: xem lai loi crash
                 final Dialog dialog = new Dialog(AddNewAlarmActivity.this);
                 dialog.setContentView(R.layout.layout_repeat_day);
-                final CheckBox t2,t3,t4,t5,t6,t7,cn;
-                final ArrayList<Integer> listDay = new ArrayList<Integer>();
                 Button btnOK,btnCancel;
                 t2 = (CheckBox)dialog.findViewById(R.id.repeat_2);
                 t3 = (CheckBox)dialog.findViewById(R.id.repeat_3);
@@ -130,6 +178,18 @@ public class AddNewAlarmActivity extends AppCompatActivity {
                     allDay.setChecked(false);
                 btnOK = (Button)dialog.findViewById(R.id.repeat_btn_ok);
                 btnCancel = (Button)dialog.findViewById(R.id.repeat_btn_cancel);
+                //co id
+                if(id !=-1){
+                    listDay = alarm.getListDays();
+                    if(listDay.contains(1)) cn.setChecked(true);
+                    if(listDay.contains(2)) t2.setChecked(true);
+                    if(listDay.contains(3)) t3.setChecked(true);
+                    if(listDay.contains(4)) t4.setChecked(true);
+                    if(listDay.contains(5)) t5.setChecked(true);
+                    if(listDay.contains(6)) t6.setChecked(true);
+                    if(listDay.contains(7)) t7.setChecked(true);
+                }
+                listDay = new ArrayList<Integer>();
                 btnOK.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -163,7 +223,7 @@ public class AddNewAlarmActivity extends AppCompatActivity {
                             listDay.add(1);
                         }
                         alarm.setListDays(listDay);
-                        txtDay.setText(s==""? "Không lặp lại":s );
+                        txtRepeat.setText(s==""? "Không lặp lại":s );
                         dialog.dismiss();
                     }
                 });
@@ -231,29 +291,31 @@ public class AddNewAlarmActivity extends AppCompatActivity {
 
                 Date date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
                 //neu gio hien tai > gio set
-                if(Calendar.getInstance().getTime().getHours()>hourSet){
-                    date.setDate(date.getDay()+1);
+                int add1day =0 ;
+                Date date1 = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
+                if(hourSet<date1.getHours()||(hourSet==date1.getHours()&&minuteSet<=date1.getHours())){
+                    date.setTime(date.getTime()+24*60*60*1000);
+                    Toast.makeText(getApplicationContext(),"Chuông báo được khởi động vào lúc "+(hourSet)
+                            +" giờ " +(minuteSet)+" phút ngày mai.",Toast.LENGTH_SHORT).show();
                 }
+                else
+                    Toast.makeText(getApplicationContext(),"Chuông báo được khởi động sau "+(hourSet-date1.getHours())+" giờ " + (minuteSet-date1.getMinutes())+
+                            " phút nữa.",Toast.LENGTH_SHORT).show();
+
+
                 date.setHours(hourSet);
                 date.setMinutes(minuteSet);
                 date.setSeconds(0);
                 alarm.setTime(date.getTime());
-                alarm.setNote(edNote.getText().toString());
-                alarm.setId(db.insert(alarm));
+                alarm.setNote(edRemind.getText().toString());
+                //if have id->update alarm, else add new alarm
+                if(id!=-1)
+                    db.update(alarm);
+                else
+                    alarm.setId(db.insert(alarm));
                 //truyen id of alarm vao intent
-                in.putExtra("id",alarm.getId());
+                //in.putExtra("id",alarm.getId());
                 customAlarmManager.addAlarm(getApplicationContext(),in,alarm);
-                //neu nhu phut cua hien tai > phut set, gio hien tai < gio set
-                int Chour = Calendar.getInstance().getTime().getHours(),Cminute = Calendar.getInstance().getTime().getMinutes();
-                if(Cminute>minuteSet && Chour == hourSet - 1){
-                    Toast.makeText(getApplicationContext(),"Chuông báo được khởi động sau "+(minuteSet+60 - Calendar.getInstance().getTime().getMinutes())
-                            +" phút nữa.",Toast.LENGTH_SHORT).show();
-
-                }
-                else{
-                    Toast.makeText(getApplicationContext(),"Chuông báo được khởi động sau "+(date.getHours()- Chour)
-                            +" giờ " +(date.getMinutes()-Cminute)+" phút nữa.",Toast.LENGTH_SHORT).show();
-                }
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("result",1);
                 setResult(Activity.RESULT_OK,returnIntent);
@@ -286,12 +348,21 @@ public class AddNewAlarmActivity extends AppCompatActivity {
             {
                 this.alarm.setRingtone(uri);
                 db.update(alarm);
-                TextView alarmName = (TextView)findViewById(R.id.acti_addnewalarm_txt_name_alarm);
+                TextView alarmName = (TextView)findViewById(R.id.acti_addnewalarm_txt_ringtone);
                 Ringtone ringtone = RingtoneManager.getRingtone(this, uri);
                 String title = ringtone.getTitle(this);
                 alarmName.setText(title);
             }
 
         }
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle arrow click here
+        if (item.getItemId() == android.R.id.home) {
+            finish(); // close this activity and return to preview activity (if there is any)
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
