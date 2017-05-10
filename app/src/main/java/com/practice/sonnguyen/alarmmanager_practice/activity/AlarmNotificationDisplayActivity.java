@@ -23,14 +23,18 @@ import java.io.IOException;
 public class AlarmNotificationDisplayActivity extends AppCompatActivity {
     private MediaPlayer mp;
     private static final long TIME_NOTI = 5*60*1000;
+    private Alarm alarm;
+    private  CustomAlarmManager alarmManager;
+    Intent in;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_notification_display);
         final int id = getIntent().getExtras().getInt("id");
         final sqlData db = new sqlData(getApplicationContext());
-        final Alarm alarm = db.getAlarm(id);
-        final CustomAlarmManager alarmManager = new CustomAlarmManager();
+        alarm = db.getAlarm(id);
+        in = new Intent(getApplicationContext(),AlarmBroadcastService.class);
+        alarmManager = new CustomAlarmManager();
         Window wind;
         wind = this.getWindow();
         wind.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
@@ -41,10 +45,9 @@ public class AlarmNotificationDisplayActivity extends AppCompatActivity {
         if(alarm.isVibrate()){
             // Vibrate for 5 min
             vibrator.vibrate(TIME_NOTI);
-
         }
 
-        mp.setVolume(alarm.getSoundLevel(),alarm.getSoundLevel());
+        mp.setVolume(alarm.getSoundLevel()*1f/200f,alarm.getSoundLevel()*1f/200f);
     try {
             mp.setDataSource(getApplicationContext(),alarm.getRingtone());
         } catch (IOException e) {
@@ -64,7 +67,6 @@ public class AlarmNotificationDisplayActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mp.stop();
-                Intent in = new Intent(getApplicationContext(),AlarmBroadcastService.class);
                 alarmManager.cancelAlarm(getApplicationContext(),in,id);
                 alarm.setOn(false);
                 db.update(alarm);
@@ -78,7 +80,7 @@ public class AlarmNotificationDisplayActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mp.stop();
-                Intent in = new Intent(getApplicationContext(),AlarmBroadcastService.class);
+                 in = new Intent(getApplicationContext(),AlarmBroadcastService.class);
                 in.putExtra("id",alarm.getId());
                 alarmManager.Repeat(getApplicationContext(),in,2*60*1000,alarm);
                 Toast.makeText(getApplicationContext(),"Chuông báo được nhắc lại trong 2 phút nữa",Toast.LENGTH_SHORT).show();
@@ -87,4 +89,16 @@ public class AlarmNotificationDisplayActivity extends AppCompatActivity {
         });
 
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        mp.stop();
+
+        in.putExtra("id",alarm.getId());
+        alarmManager.Repeat(getApplicationContext(),in,2*60*1000,alarm);
+        Toast.makeText(getApplicationContext(),"Chuông báo được nhắc lại trong 2 phút nữa",Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
 }
